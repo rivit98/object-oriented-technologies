@@ -120,6 +120,9 @@ public class OrmTest {
         var student2 = studentDao.create("Jan", "Paciaciak", 800126);
         var course = courseDao.create("WDI");
 
+        courseDao.enrollStudent(course.get(), student1.get());
+        courseDao.enrollStudent(course.get(), student2.get());
+
         var students = course.get().studentSet();
 
         // Then
@@ -138,7 +141,7 @@ public class OrmTest {
         var student = studentDao.create("Kasia", "Kowalska", 900124);
         var course = courseDao.create("MOWNIT 2");
 
-        var initialStudentGrades = student.get().gradeSet();
+        var initialStudentGradesSize = student.get().gradeSet().size();
         boolean studentGraded = gradeDao.gradeStudent(student.get(), course.get(), 5.0f);
         var resultStudentGrades = student.get().gradeSet();
 
@@ -147,7 +150,7 @@ public class OrmTest {
         checkCourse(course);
 
         assertTrue(studentGraded);
-        assertEquals(0, initialStudentGrades.size());
+        assertEquals(0, initialStudentGradesSize);
         assertEquals(1, resultStudentGrades.size());
     }
 
