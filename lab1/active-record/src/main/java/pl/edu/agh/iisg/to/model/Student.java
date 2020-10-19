@@ -2,9 +2,7 @@ package pl.edu.agh.iisg.to.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import pl.edu.agh.iisg.to.executor.QueryExecutor;
 
@@ -25,19 +23,43 @@ public class Student {
     }
 
     public static Optional<Student> create(final String firstName, final String lastName, final int indexNumber) {
-        // TODO
-        String sql = "";
+        String sql = "INSERT INTO student (first_name, last_name, index_number) VALUES(?, ?, ?)";
 
-        // TODO
-        // it is important to maintain the correct order of the variables
-        Object[] args = { };
+        Object[] args = {
+                firstName,
+                lastName,
+                indexNumber
+        };
 
+        try {
+            int id = QueryExecutor.createAndObtainId(sql, args);
+            return Student.findById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return Optional.empty();
     }
 
     public static Optional<Student> findByIndexNumber(final int indexNumber) {
-        // TODO
+        String sql = "SELECT * FROM student WHERE index_number = ?";
+
+        Object[] args = {
+                indexNumber
+        };
+
+        try (var resultSet = QueryExecutor.read(sql, args)) {
+            return Optional.of(
+                    new Student(
+                            resultSet.getInt("id"),
+                            resultSet.getString("first_name"),
+                            resultSet.getString("last_name"),
+                            resultSet.getInt("index_number")
+                    ));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return Optional.empty();
     }
 
@@ -48,7 +70,7 @@ public class Student {
 
     private static Optional<Student> find(int value, String sql) {
         Object[] args = {value};
-        try {
+        try{
             ResultSet rs = QueryExecutor.read(sql, args);
             return Optional.of(new Student(rs.getInt("id"), rs.getString("first_name"), rs.getString("last_name"), rs.getInt("index_number")));
         } catch (SQLException e) {
@@ -58,7 +80,39 @@ public class Student {
     }
 
     public Map<Course, Float> createReport() {
-        // TODO additional task
+        String sql = "SELECT c.id, c.name, g.grade " +
+                "FROM grade g " +
+                "JOIN course c " +
+                "ON g.course_id = c.id " +
+                "WHERE g.student_id=?";
+
+        Object[] args = {
+                this.id()
+        };
+
+        try{
+            ResultSet rs = QueryExecutor.read(sql, args);
+            Map<Course, List<Float>> courseGrades = new HashMap<>();
+
+            while(rs.next()){
+                var c = new Course(
+                        rs.getInt("id"),
+                        rs.getString("name")
+                );
+
+                var g = rs.getFloat("grade");
+                courseGrades.computeIfAbsent(c, k -> new LinkedList<>()).add(g);
+            }
+            Map<Course, Float> report = new HashMap<>();
+            courseGrades.forEach((k, v) -> {
+                report.put(k, (float) v.stream().mapToDouble(a -> a).average().getAsDouble());
+            });
+
+            return report;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return Collections.emptyMap();
     }
 

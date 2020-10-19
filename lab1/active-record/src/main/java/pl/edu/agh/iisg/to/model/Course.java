@@ -49,8 +49,7 @@ public class Course {
                 id
         };
 
-    	try {
-			ResultSet rs = QueryExecutor.read(findByIdSql, args);
+    	try (ResultSet rs = QueryExecutor.read(findByIdSql, args)){
 	        return Optional.of(new Course(rs.getInt("id"), rs.getString("name")));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -59,30 +58,59 @@ public class Course {
     }
 
     public boolean enrollStudent(final Student student) {
-        String enrollStudentSql = "";
+        String enrollStudentSql = "INSERT INTO student_course(student_id, course_id) VALUES(?, ?);";
         Object[] args = {
-
+            student.id(),
+            this.id()
         };
 
-        //TODO
+        try {
+            QueryExecutor.create(enrollStudentSql, args);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return false;
     }
 
     public List<Student> studentList() {
-    	String findStudentListSql ="";
-        Object[] args = {
+    	String findStudentListSql = "SELECT * " +
+                "FROM student s " +
+                "JOIN student_course sc " +
+                "ON s.id = sc.student_id " +
+                "WHERE sc.course_id = ?";
 
+        Object[] args = {
+            this.id()
         };
 
     	List<Student> resultList = new LinkedList<>();
-    	// TODO
+        try (var rs = QueryExecutor.read(findStudentListSql, args)){
+            while(rs.next()){
+                resultList.add(
+                        new Student(
+                                rs.getInt("id"),
+                                rs.getString("first_name"),
+                                rs.getString("last_name"),
+                                rs.getInt("index_number")
+                        )
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     	return resultList;
     }
     
     public List<Student> cachedStudentsList() {
-    	//TOTO implement
+        if(!this.isStudentsListDownloaded){
+            this.enrolledStudents = this.studentList();
+            this.isStudentsListDownloaded = true;
+        }
+
 		return enrolledStudents;
     }
 
