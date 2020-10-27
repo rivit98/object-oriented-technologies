@@ -1,21 +1,18 @@
 package pl.edu.agh.school.demo;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import pl.edu.agh.logger.ConsoleMessageSerializer;
+import pl.edu.agh.logger.FileMessageSerializer;
+import pl.edu.agh.logger.Logger;
+import pl.edu.agh.school.*;
+import pl.edu.agh.school.guice.SchoolModule;
+import pl.edu.agh.school.persistence.SerializablePersistenceManager;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-
-import pl.edu.agh.logger.ConsoleMessageSerializer;
-import pl.edu.agh.logger.FileMessageSerializer;
-import pl.edu.agh.logger.Logger;
-import pl.edu.agh.school.DayOfWeek;
-import pl.edu.agh.school.Person;
-import pl.edu.agh.school.School;
-import pl.edu.agh.school.SchoolClass;
-import pl.edu.agh.school.Student;
-import pl.edu.agh.school.Subject;
-import pl.edu.agh.school.Teacher;
-import pl.edu.agh.school.Term;
 
 public class SchoolDemo {
 
@@ -24,15 +21,11 @@ public class SchoolDemo {
     private final DateFormat timeFormat = new SimpleDateFormat("hh:mm");
 
     public SchoolDemo() {
-        school = new School();
+        var injector = Guice.createInjector(new SchoolModule());
+        school = injector.getInstance(School.class);
     }
 
     public static void main(String[] args) throws Exception {
-
-        Logger.getInstance().registerSerializer(new ConsoleMessageSerializer());
-        Logger.getInstance().registerSerializer(
-                new FileMessageSerializer("logfile.log"));
-
         SchoolDemo schoolDemo = new SchoolDemo();
         schoolDemo.initTeachers();
         schoolDemo.initClass();

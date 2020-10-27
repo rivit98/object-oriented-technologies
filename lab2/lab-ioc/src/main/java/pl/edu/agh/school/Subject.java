@@ -1,18 +1,22 @@
 package pl.edu.agh.school;
 
+import pl.edu.agh.logger.Logger;
+
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import pl.edu.agh.logger.Logger;
-
 public class Subject implements Serializable {
 
 	private static final long serialVersionUID = 5342955138128716653L;
 
-	private final String name;
+	private String name;
+
+	@Inject
+	private Logger logger;
 
 	private final List<Term> terms = new ArrayList<>();
 	private final List<Mark> marks = new ArrayList<>();
@@ -21,6 +25,7 @@ public class Subject implements Serializable {
 
 	private Teacher _teacher;
 
+	@Inject
 	public Subject(String name) {
 		this.name = name;
 	}
@@ -29,11 +34,15 @@ public class Subject implements Serializable {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public void addTerm(Term newTerm) {
 		if (!terms.contains(newTerm)) {
 			terms.add(newTerm);
 			newTerm.setSubject(this);
-			Logger.getInstance().log(
+			logger.log(
 					"Added " + newTerm.toString() + " to " + toString());
 		}
 	}

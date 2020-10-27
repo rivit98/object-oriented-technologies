@@ -35,7 +35,7 @@ public class LessonTest {
 	public void testGetDate() {
 		assertNotNull(lesson.getDate());
 		// check if date is not in the future
-		assertFalse(lesson.getDate().before(Calendar.getInstance()));
+		assertFalse(lesson.getDate().after(Calendar.getInstance()));
 	}
 
 	@Test

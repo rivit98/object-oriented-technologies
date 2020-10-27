@@ -1,9 +1,11 @@
 package pl.edu.agh.logger;
 
 
+import javax.inject.Inject;
+
 public class ConsoleMessageSerializer  implements IMessageSerializer
 {
-	
+	@Inject
 	public ConsoleMessageSerializer()
 	{
 	}

@@ -1,11 +1,13 @@
 package pl.edu.agh.school;
 
 
+import com.google.inject.Guice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.edu.agh.school.guice.SchoolModule;
 
 import java.util.Collection;
 
@@ -31,7 +33,9 @@ public class SubjectTest {
 	
 	@BeforeEach
 	public void setUp() throws Exception {
-		subject=new Subject(SUBJECT_NAME);
+		var injector = Guice.createInjector(new SchoolModule());
+		subject = injector.getInstance(Subject.class);
+		subject.setName(SUBJECT_NAME);
 	}
 
 	@Test

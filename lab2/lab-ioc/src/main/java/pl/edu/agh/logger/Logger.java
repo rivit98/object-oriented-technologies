@@ -1,21 +1,23 @@
 package pl.edu.agh.logger;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+@Singleton
 public class Logger {
-    protected static Logger logger;
-
     protected DateFormat dateFormat;
 
+    @Inject
     protected Set<IMessageSerializer> registeredSerializers;
 
     public Logger() {
         init();
-        this.registeredSerializers = new HashSet<IMessageSerializer>();
+        this.registeredSerializers = new HashSet<>();
     }
 
     public Logger(Set<IMessageSerializer> registeredSerializers) {
@@ -24,12 +26,6 @@ public class Logger {
             throw new IllegalArgumentException("null argument");
         }
         this.registeredSerializers = registeredSerializers;
-    }
-
-    public static Logger getInstance() {
-        if (logger == null)
-            logger = new Logger();
-        return logger;
     }
 
     public void registerSerializer(IMessageSerializer messageSerializer) {
