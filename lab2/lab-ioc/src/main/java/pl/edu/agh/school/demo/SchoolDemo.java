@@ -1,13 +1,8 @@
 package pl.edu.agh.school.demo;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
-import pl.edu.agh.logger.ConsoleMessageSerializer;
-import pl.edu.agh.logger.FileMessageSerializer;
-import pl.edu.agh.logger.Logger;
 import pl.edu.agh.school.*;
 import pl.edu.agh.school.guice.SchoolModule;
-import pl.edu.agh.school.persistence.SerializablePersistenceManager;
 
 import java.text.DateFormat;
 import java.text.ParseException;
