@@ -2,7 +2,6 @@ package util;
 
 import driver.DuckDuckGoDriver;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import model.Photo;
 import org.apache.tika.Tika;
@@ -13,8 +12,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,22 +31,22 @@ public class PhotoDownloader {
 
     public Observable<Photo> searchForPhotos(String searchQuery) throws IOException, InterruptedException {
         return Observable.create(observer -> {
-            try{
+            try {
                 List<String> photoUrls = DuckDuckGoDriver.searchForImages(searchQuery);
                 for (String photoUrl : photoUrls) {
-                    if(observer.isDisposed()){
+                    if (observer.isDisposed()) {
                         break;
                     }
 
                     try {
                         observer.onNext(getPhoto(photoUrl));
                     } catch (IOException e) {
-                        log.log(Level.WARNING, "Could not download a photo", e);
+//                        log.log(Level.WARNING, "Could not download a photo", e);
                     }
                 }
                 observer.onComplete();
 
-            }catch (IOException e){
+            } catch (IOException e) {
                 observer.onError(e);
             }
         });
