@@ -7,6 +7,7 @@ import util.PhotoProcessor;
 import util.PhotoSerializer;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -80,17 +81,13 @@ public class PhotoCrawler {
         var downloadedExamples =
                 photoDownloader
                         .searchForPhotos(topics)
-                        .filter(photoProcessor::isPhotoValid)
                         .groupBy(PhotoSize::resolve)
-//                        .flatMap(grouped -> grouped.buffer(5, TimeUnit.SECONDS));
-                        .flatMap(grouped -> {
-                            if(grouped.getKey() == PhotoSize.MEDIUM){
-                                return grouped
-                                        .buffer(5, TimeUnit.SECONDS)
-                                        .flatMapIterable(l -> l);
-                            }
-
-                            return grouped
+                        .flatMap(grouped -> switch (grouped.getKey()) {
+                            case SMALL -> grouped.ignoreElements().toObservable();
+                            case MEDIUM -> grouped
+                                    .buffer(5, TimeUnit.SECONDS)
+                                    .flatMapIterable(l -> l);
+                            case LARGE -> grouped
                                     .observeOn(Schedulers.computation())
                                     .map(photoProcessor::convertToMiniature);
                         });
