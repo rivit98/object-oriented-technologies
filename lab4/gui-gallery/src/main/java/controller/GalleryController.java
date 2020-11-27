@@ -1,8 +1,11 @@
 package controller;
 
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.ListCell;
@@ -11,8 +14,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import model.Gallery;
 import model.Photo;
+import util.PhotoDownloader;
 
 public class GalleryController {
+
+    @FXML
+    public TextField searchTextField;
 
     @FXML
     public TextField imageNameField;
@@ -61,8 +68,24 @@ public class GalleryController {
     }
 
     private void bindSelectedPhoto(Photo selectedPhoto) {
-        imageView.imageProperty().bind(selectedPhoto.photoDataProperty());
-        imageNameField.textProperty().bindBidirectional(selectedPhoto.nameProperty());
+        if(selectedPhoto != null){
+            imageView.imageProperty().bind(selectedPhoto.photoDataProperty());
+            imageNameField.textProperty().bindBidirectional(selectedPhoto.nameProperty());
+        }
+    }
+
+    public void searchButtonClicked(ActionEvent event) {
+        var text = searchTextField.getText();
+        if(text.isEmpty()){
+            return;
+        }
+        var downloader = new PhotoDownloader();
+        galleryModel.clear();
+
+        downloader.searchForPhotos(text)
+                .subscribeOn(Schedulers.io())
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(galleryModel::addPhoto);
     }
 }
 
